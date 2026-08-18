@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>BNB Builder Session · Bolivia</title>
+  <style>
+    @font-face {
+      font-family: Inter;
+      src: url("assets/InterVariable.woff2") format("woff2");
+      font-weight: 100 900;
+      font-display: swap;
+    }
+
+    :root {
+      --yellow: #f0b90b;
+      --ink: #0b0e11;
+      --white: #ffffff;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      height: 100%;
+      background: #000;
+      color: var(--white);
+      font-family: Inter, "Segoe UI", Helvetica, Arial, sans-serif;
+      font-optical-sizing: auto;
+      overflow: hidden;
+    }
+
+    .stage {
+      width: 100vw;
+      height: 100vh;
+      display: grid;
+      place-items: center;
+    }
+
+    .slide {
+      display: none;
+      width: min(100vw, calc(100vh * 16 / 9));
+      height: min(100vh, calc(100vw * 9 / 16));
+      background: var(--ink);
+      position: relative;
+      padding: 6% 7%;
+    }
+    .slide.on { display: flex; flex-direction: column; }
+
+    .slide.title-slide {
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 8%;
+    }
+
+    .logo-h {
+      height: 36px;
+      width: auto;
+      display: block;
+    }
+    .logo-v {
+      height: 88px;
+      width: auto;
+      display: block;
+    }
+
+    .kicker {
+      font-size: clamp(14px, 1.35vw, 22px);
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      color: var(--yellow);
+      margin-bottom: 1.2vh;
+    }
+
+    h1 {
+      font-size: clamp(36px, 4.6vw, 84px);
+      font-weight: 600;
+      line-height: 1.08;
+      letter-spacing: -0.03em;
+    }
+
+    .lede {
+      margin-top: 2.4vh;
+      font-size: clamp(20px, 2.15vw, 40px);
+      font-weight: 400;
+      line-height: 1.25;
+      color: rgba(255,255,255,0.86);
+      max-width: 18ch;
+    }
+
+    .lede.wide { max-width: 28ch; }
+
+    .foot {
+      position: absolute;
+      left: 7%;
+      right: 7%;
+      bottom: 4.5%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .foot .meta {
+      font-size: clamp(12px, 1.05vw, 18px);
+      color: rgba(255,255,255,0.45);
+      font-weight: 500;
+    }
+    .num {
+      font-variant-numeric: tabular-nums;
+      color: rgba(255,255,255,0.45);
+      font-size: clamp(12px, 1.05vw, 18px);
+    }
+
+    .stack { display: flex; flex-direction: column; gap: 2.2vh; flex: 1; justify-content: center; }
+    .row { display: flex; gap: 2.4vw; align-items: stretch; }
+    .grow { flex: 1; }
+
+    .item {
+      font-size: clamp(26px, 2.8vw, 52px);
+      font-weight: 550;
+      line-height: 1.15;
+    }
+    .item small {
+      display: block;
+      margin-top: 0.6vh;
+      font-size: 0.42em;
+      font-weight: 400;
+      color: rgba(255,255,255,0.55);
+    }
+
+    .rule {
+      width: 48px;
+      height: 3px;
+      background: var(--yellow);
+      margin: 0 0 2vh;
+    }
+
+    .big {
+      font-size: clamp(56px, 8vw, 140px);
+      font-weight: 650;
+      letter-spacing: -0.04em;
+      line-height: 0.95;
+      color: var(--yellow);
+    }
+    .n {
+      font-size: clamp(28px, 3.2vw, 56px);
+      font-weight: 650;
+      letter-spacing: -0.04em;
+      color: var(--yellow);
+      font-variant-numeric: tabular-nums;
+      margin-bottom: 1.6vh;
+    }
+
+    .cols {
+      display: grid;
+      gap: 3vw;
+      align-items: start;
+    }
+    .cols.c2 { grid-template-columns: 1fr 1fr; }
+    .cols.c3 { grid-template-columns: 1fr 1fr 1fr; }
+    .cols.c4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
+
+    .col h2 {
+      font-size: clamp(14px, 1.3vw, 22px);
+      font-weight: 600;
+      color: var(--yellow);
+      margin-bottom: 1.4vh;
+    }
+    .col p, .col li {
+      font-size: clamp(18px, 1.7vw, 32px);
+      font-weight: 500;
+      line-height: 1.3;
+      color: var(--white);
+    }
+    .col li {
+      list-style: none;
+      margin: 0.9vh 0;
+      display: flex;
+      align-items: center;
+      gap: 0.7em;
+    }
+    .tool {
+      height: 1.15em;
+      width: 1.15em;
+      object-fit: contain;
+      flex: 0 0 auto;
+    }
+
+    .steps {
+      display: flex;
+      flex-direction: column;
+      gap: 2.4vh;
+    }
+    .step {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 1.8vw;
+      align-items: center;
+    }
+    .step .n { margin-bottom: 0; }
+    .step .cmd { margin-top: 0; }
+    .step .why {
+      margin-top: 0.7vh;
+      font-size: clamp(16px, 1.45vw, 26px);
+      font-weight: 400;
+      color: rgba(255,255,255,0.55);
+      line-height: 1.25;
+    }
+    .cmd {
+      font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+      font-size: clamp(16px, 1.55vw, 28px);
+      font-weight: 500;
+      color: var(--white);
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.12);
+      padding: 1.2vh 1.4vw;
+      margin-top: 1.2vh;
+    }
+
+    .qr {
+      width: min(32vh, 28vw);
+      height: min(32vh, 28vw);
+      background: var(--white);
+      padding: 12px;
+      image-rendering: pixelated;
+    }
+    .qr.sm {
+      width: min(26vh, 22vw);
+      height: min(26vh, 22vw);
+    }
+    .qr img { width: 100%; height: 100%; display: block; }
+    .qr-caption {
+      margin-top: 1.6vh;
+      font-size: clamp(16px, 1.5vw, 28px);
+      color: rgba(255,255,255,0.75);
+      font-weight: 500;
+    }
+    .qr-row {
+      display: flex;
+      justify-content: center;
+      gap: 4.5vw;
+      margin-top: 3vh;
+    }
+    .qr-row > div { text-align: center; }
+
+    .mark {
+      height: 36px;
+      width: auto;
+      max-width: 180px;
+      object-fit: contain;
+      display: block;
+      margin-bottom: 1.6vh;
+    }
+    .mark.sq {
+      height: 52px;
+      width: 52px;
+    }
+    .mark.lg {
+      height: 64px;
+      max-width: 280px;
+    }
+    .photo {
+      width: 100%;
+      max-height: 42vh;
+      object-fit: cover;
+      display: block;
+    }
+    .split {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 4vw;
+      align-items: center;
+      flex: 1;
+    }
+    .trust {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2.6vh 2.8vw;
+      align-items: center;
+    }
+    .trust img {
+      height: 26px;
+      width: auto;
+      max-width: 130px;
+      object-fit: contain;
+    }
+
+    .ph {
+      min-height: 28vh;
+      border: 1px solid rgba(255,255,255,0.22);
+      display: grid;
+      place-items: center;
+      color: rgba(255,255,255,0.4);
+      font-size: clamp(16px, 1.5vw, 26px);
+      text-align: center;
+      padding: 3vh;
+    }
+
+    .ally-lockup {
+      display: flex;
+      align-items: center;
+      gap: 1.2vw;
+      margin-bottom: 1.4vh;
+    }
+    .ally-lockup .iso {
+      height: min(10vh, 88px);
+      width: auto;
+    }
+    .ally-lockup .word {
+      height: min(8.5vh, 70px);
+      width: auto;
+      max-width: 42vw;
+    }
+    .ally-sq {
+      height: min(22vh, 200px);
+      width: min(22vh, 200px);
+      object-fit: contain;
+      display: block;
+      margin-bottom: 1.2vh;
+    }
+
+    .notes {
+      display: none;
+      position: fixed;
+      left: 0; right: 0; bottom: 0;
+      background: #111;
+      color: #ddd;
+      padding: 12px 20px 16px;
+      font-size: 15px;
+      line-height: 1.4;
+      z-index: 5;
+      border-top: 1px solid #333;
+    }
+    body.notes-on .notes { display: block; }
+    body.notes-on .slide { height: calc(min(100vh, calc(100vw * 9 / 16)) - 72px); }
+
+    .help {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.72);
+      color: #fff;
+      z-index: 6;
+      place-items: center;
+      font-size: 18px;
+      line-height: 1.7;
+      text-align: left;
+    }
+    body.help-on .help { display: grid; }
+
+    @media print {
+      html, body { overflow: visible; background: #000; }
+      .stage { display: block; }
+      .slide {
+        display: flex !important;
+        page-break-after: always;
+        width: 100%;
+        height: 100vh;
+      }
+      .notes, .help { display: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="help" id="help">
+    <div>
+      <p>Flechas o espacio: siguiente / anterior</p>
+      <p>S: notas para vos (el público no las lee)</p>
+      <p>F: pantalla completa</p>
+      <p>Home / End: primera / última</p>
+      <p>H: cerrar esta ayuda</p>
+    </div>
+  </div>
+  <div class="notes" id="notes"></div>
+  <div class="stage" id="stage"></div>
+
+  <script>
+    const slides = [
+      {
+        id: "01",
+        notes: "Bienvenida. Wifi QR abajo a la derecha si ya lo tenés. No leas el slide.",
+        html: `
+          <section class="slide title-slide">
+            <img class="logo-v" src="assets/BNB_Chain_Stacked_Logo_Yellow.svg" alt="BNB Chain" />
+            <h1 style="margin-top:4vh">Builder Session</h1>
+            <p class="lede">Bolivia · Cochabamba<br>18 ago 2026</p>
+            <div class="foot" style="justify-content:flex-end">
+              <div class="ph" style="min-height:0;width:110px;height:110px;padding:8px;font-size:12px">QR wifi</div>
+            </div>
+          </section>`
+      },
+      {
+        id: "02",
+        notes: "Primera session del país. Lima: 41 personas, 5 agentes esa noche. Presentá a Eth Bolivia y Cochablock de una. QR: tu Linktree, no el de BNB. No hagas pitch de Verus acá.",
+        html: `
+          <section class="slide">
+            <p class="kicker">Quién habla</p>
+            <div class="stack" style="flex-direction:row;align-items:center;gap:5vw">
+              <div>
+                <h1>Julio Cesar Severiche Orellana</h1>
+                <p class="lede wide">Embajador BNB Chain en Bolivia</p>
+              </div>
+              <div>
+                <div class="qr"><img src="assets/qr-tomoki.png" alt="QR Linktree Julio" /></div>
+                <p class="qr-caption">linktr.ee/tomoki977</p>
+              </div>
+            </div>
+            <div class="foot">
+              <img class="logo-h" src="assets/BNB_Chain_Logo_Yellow.svg" alt="BNB Chain" />
+              <span class="num"></span>
+            </div>
+          </section>`
+      },
+      {
+        id: "03",
+        notes: "No leas ‘reglas’. Permiso: se habla, nadie pone plata, y si sale algo puede ir a Era. Al rato qué construir de verdad.",
+        html: `
+          <section class="slide">
+            <p class="kicker">Esta noche</p>
+            <div class="stack">
+              <div class="cols c3">
+                <div>
+                  <p class="n">01</p>
+                  <p class="item">Se habla<small>Hoy no hay Solidity</small></p>
+                </div>
+                <div>
+                  <p class="n">02</p>
+                  <p class="item">Testnet<small>Nadie pone plata</small></p>
+                </div>
+                <div>
+                  <p class="n">03</p>
+                  <p class="item">Puede ir a Era<small>Es la puerta, no el premio</small></p>
+                </div>
+              </div>
+            </div>
+            <div class="foot">
+              <img class="logo-h" src="assets/BNB_Chain_Logo_Yellow.svg" alt="BNB Chain" />
+              <span class="num"></span>
+            </div>
+          </section>`
+      },
+      {
+        id: "04",
+        notes: "Binance lo lanzó: token, primera chain, liquidez. Hoy se gobierna sola. El padre está; el hijo ya camina. Noventa segundos. El número: no cites Token Terminal.",
+        html: `
+          <section class="slide">
+            <p class="kicker">BNB Chain</p>
+            <div class="stack">
+              <img class="mark lg" src="assets/binance-wordmark.svg" alt="Binance" />
+              <h1>Binance lo lanzó</h1>
+              <p class="lede wide">Hoy se gobierna sola. Ya vive gente usando plata on-chain.</p>
+              <p class="item" style="margin-top:3vh">1 de cada 3<small>direcciones activas entre 40 L1s está acá</small></p>
+            </div>
+            <div class="foot">
+              <img class="logo-h" src="assets/BNB_Chain_Logo_Yellow.svg" alt="BNB Chain" />
+              <span class="num"></span>
+            </div>
+          </section>`
+      },
+      {
+        id: "05",
+        notes: "Cuatro frases de 8 segundos. Aterrizá en agentes: eso es lo que hacemos esta noche. MCP, Ask AI y 7702 están en el Linktree del cierre, no acá.",
+        html: `
+          <section class="slide">
+            <p class="kicker">Qué se construye acá</p>
+            <div class="stack">
+              <div class="cols c4">
+                <div>
+                  <img class="mark sq" src="assets/pancake-cake.png" alt="PancakeSwap" />
+                  <p class="item">PancakeSwap<small>DEX de la red</small></p>
+                </div>
+                <div>
+                  <img class="mark" src="assets/franklin.svg" alt="Franklin Templeton" />
+                  <p class="item">RWA<small>activos en la chain</small></p>
+                </div>
+                <div>
+                  <img class="mark" src="assets/trust-wallet.svg" alt="Trust Wallet" />
+                  <p class="item">Pagos<small>wallet y QR</small></p>
+                </div>
+                <div>
+                  <img class="mark sq" src="assets/BNB_Chain_Symbol_Yellow.svg" alt="" />
+                  <p class="item">Agentes<small>esta noche</small></p>
+                </div>
+              </div>
+            </div>
+            <div class="foot">
+              <img class="logo-h" src="assets/BNB_Chain_Logo_Yellow.svg" alt="BNB Chain" />
+              <span class="num"></span>
+            </div>
+          </section>`
+      },
+      {
+        id: "06",
+        notes: "De pie. Tres voces. Sentate. Puente: eso es el prompt. Ahora les digo qué es un agente y lo hacemos.",
+        html: `
+          <section class="slide">
+            <p class="kicker">Dinámica · 30 segundos</p>
+            <div class="stack">
+              <h1>Si un agente te cobra 0, ¿qué le pedirías?</h1>
+            </div>
+            <div class="foot">
+              <img class="logo-h" src="assets/BNB_Chain_Logo_Yellow.svg" alt="BNB Chain" />
+              <span class="num"></span>
+            </div>
+          </section>`
+      },
+      {
+        id: "07",
+        notes: "El respaldo, en castellano: no flota en un chat. Tiene billetera, un contrato de trabajo y un DNI. Los nombres son para la foto. TWAK = cobra y paga. x402 + 8183 = te pagan cuando entrega. 8004 = quién es y si ya entregó. No des clase. Precio 0 para testear. Paper: ‘te lo mando’.",
+        html: `
+          <section class="slide">
+            <p class="kicker">Un agente no es un chatbot</p>
+            <div class="stack">
+              <div class="cols c3">
+                <div>
+                  <p class="n">01</p>
+                  <img class="mark" src="assets/trust-wallet.svg" alt="Trust Wallet" />
+                  <p class="item">Billetera<small>puede cobrar y pagar · TWAK</small></p>
+                </div>
+                <div>
+                  <p class="n">02</p>
+                  <img class="mark sq" src="assets/BNB_Chain_Symbol_Yellow.svg" alt="" />
+                  <p class="item">Contrato<small>te pagan cuando entrega · x402 · ERC-8183</small></p>
+                </div>
+                <div>
+                  <p class="n">03</p>
+                  <img class="mark sq" src="assets/BNB_Chain_Symbol_Yellow.svg" alt="" />
+                  <p class="item">Identidad<small>DNI y reputación · ERC-8004</small></p>
+                </div>
+              </div>
+            </div>
+            <div class="foot">
+              <img class="logo-h" src="assets/BNB_Chain_Logo_Yellow.svg" alt="BNB Chain" />
+              <span class="meta">Fotografialo · indagá en casa</span>
+              <span class="num"></span>
+            </div>
+          </section>`
+      },
+      {
+        id: "08",
+        notes: "El número es el mercado: más de 200 mil agentes con ERC-8004 en BSC, ~60% de 26 redes. Fuente: blog Build the Era, 5 ago 2026 (AI Agent Landscape, julio 2026). No cites Token Terminal. No digas 8004scan. Frase: hay puestos de más; falta el mostrador. Studio fabrica. Era ordena. Acceso: construir = editor. 22 días van en la 12.",
+        html: `
+          <section class="slide">
+            <p class="kicker">Para qué existe</p>
+            <div class="stack">
+              <p class="big">+200 mil</p>
+              <p class="item">agentes con DNI en BSC<small>6 de cada 10 de 26 redes · nadie los encuentra</small></p>
+              <div class="cols c3" style="margin-top:3vh">
+                <div>
+                  <p class="n">01</p>
+                  <p class="item">Studio<small>fabrica el puesto</small></p>
+                </div>
+                <div>
+                  <p class="n">02</p>
+                  <p class="item">Era<small>ordena el mercado · 9 sep</small></p>
+                </div>
+                <div>
+                  <p class="n">03</p>
+                  <p class="item">Marketplace<small>el mostrador que falta</small></p>
+                </div>
+              </div>
+            </div>
+            <div class="foot">
+              <img class="logo-h" src="assets/BNB_Chain_Logo_Yellow.svg" alt="BNB Chain" />
+              <span class="meta">Studio es la cocina · Era es el mostrador</span>
+              <span class="num"></span>
+            </div>
+          </section>`
+      },
+      {
+        id: "09",
+        notes: "Señalá los logos. Gratis alcanza. Si ya pagás otra, usala. Yo muestro Cursor. Uno solo. No compren nada esta noche.",
+        html: `
+          <section class="slide">
+            <p class="kicker">Qué necesitás</p>
+            <div class="stack">
+              <div class="cols c2">
+                <div class="col">
+                  <h2>Gratis alcanza</h2>
+                  <ul>
+                    <li><img class="tool" src="assets/cursor-cube.svg" alt="Cursor" />Cursor Hobby</li>
+                    <li><img class="tool" src="assets/antigravity-icon.png" alt="Antigravity" />Antigravity</li>
+                  </ul>
+                </div>
+                <div class="col">
+                  <h2>Si ya la tenés</h2>
+                  <ul>
+                    <li><img class="tool" src="assets/claude-symbol.svg" alt="Claude" />Claude Code</li>
+                    <li><img class="tool" src="assets/openai-blossom.svg" alt="Codex" />Codex</li>
+                    <li><img class="tool" src="assets/cursor-cube.svg" alt="Cursor" />Cursor Pro</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            <div class="foot">
+              <img class="logo-h" src="assets/BNB_Chain_Logo_Yellow.svg" alt="BNB Chain" />
+              <span class="meta">Uno solo · no hace falta pagar</span>
+              <span class="num"></span>
+            </div>
+          </section>`
+      },
+      {
+        id: "10",
+        notes: "En casa, no ahora. 01 instala bag. 02 el editor aprende a manejar Studio. 03 recargá: recién ahí le hablás. No instales Node en vivo.",
+        html: `
+          <section class="slide">
+            <p class="kicker">Cómo se instala</p>
+            <div class="stack">
+              <div class="steps">
+                <div class="step">
+                  <p class="n">01</p>
+                  <div>
+                    <p class="cmd">npm i -g @bnbagent/studio-cli</p>
+                    <p class="why">Instala bag · CLI y runtime juntos</p>
+                  </div>
+                </div>
+                <div class="step">
+                  <p class="n">02</p>
+                  <div>
+                    <p class="cmd">bag skills install</p>
+                    <p class="why">El editor aprende a manejar el agente</p>
+                  </div>
+                </div>
+                <div class="step">
+                  <p class="n">03</p>
+                  <div>
+                    <p class="item" style="font-size:clamp(22px,2.2vw,40px)">Recargá el editor</p>
+                    <p class="why">Recién ahí le hablás en castellano · BSC testnet</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="foot">
+              <img class="logo-h" src="assets/BNB_Chain_Logo_Yellow.svg" alt="BNB Chain" />
+              <span class="meta">Hoy mirás la pantalla · no instales Node acá</span>
+              <span class="num"></span>
+            </div>
+          </section>`
+      },
+      {
+        id: "11",
+        notes: "Referencia BA. Cuatro que ya se armaron en vivo: todos testnet, todos leen y recomiendan, ninguno ejecuta. ‘Si te gusta uno, esa es tu frase de esta noche.’ La siguiente: cómo esto alimenta la vitrina de Era.",
+        html: `
+          <section class="slide">
+            <p class="kicker">Qué se puede armar esta noche</p>
+            <div class="stack">
+              <div class="cols c2">
+                <p class="item">Plan de salida<small>take-profits · solo recomienda, no ejecuta</small></p>
+                <p class="item">Explicador de tx<small>un hash · en castellano · con confianza</small></p>
+                <p class="item">Auditor de contrato<small>pegás el contrato · sale un reporte</small></p>
+                <p class="item">Analizador de wallet<small>una address · balances y actividad</small></p>
+              </div>
+            </div>
+            <div class="foot">
+              <img class="logo-h" src="assets/BNB_Chain_Logo_Yellow.svg" alt="BNB Chain" />
+              <span class="meta">BSC testnet · analiza, no toca fondos</span>
+              <span class="num"></span>
+            </div>
+          </section>`
+      },
+      {
+        id: "12",
+        notes: "Era pide la vitrina, no un portfolio. Las 4 de esta noche son inventario y calzan con las 4 de referencia del brief: monitoreo, health factor, yield/grid, security. Grid y yield en escena = recomienda, no ejecuta. ~200k agentes, nadie los contrata. QR 8 segundos. Cierra 9 sep — 22 días. $40k+ y partner tracks (TermiX, Pancake, Altana) solo si preguntan. Ganador: chance de ser el marketplace oficial incubado; no es MVB.",
+        html: `
+          <section class="slide">
+            <p class="kicker">Build the Era · qué listar</p>
+            <div class="split">
+              <div class="stack" style="justify-content:center;gap:2vh">
+                <h1 style="font-size:clamp(26px,2.7vw,48px)">La vitrina tiene que cubrir esto</h1>
+                <div class="cols c2" style="margin-top:2vh">
+                  <p class="item" style="font-size:clamp(20px,2.1vw,38px)">Monitoreo<small>wallet · tx · posiciones</small></p>
+                  <p class="item" style="font-size:clamp(20px,2.1vw,38px)">Préstamo sano<small>health factor · avisa, no liquida</small></p>
+                  <p class="item" style="font-size:clamp(20px,2.1vw,38px)">Plan / yield<small>take-profits · recomienda, no ejecuta</small></p>
+                  <p class="item" style="font-size:clamp(20px,2.1vw,38px)">Auditor<small>el contrato · un reporte</small></p>
+                </div>
+              </div>
+              <div>
+                <div class="qr"><img src="assets/qr-hackathon.png" alt="QR hackathon" /></div>
+                <p class="qr-caption">bnbchain.org/en/hackathons/smart-money-era</p>
+              </div>
+            </div>
+            <div class="foot">
+              <img class="logo-h" src="assets/BNB_Chain_Logo_Yellow.svg" alt="BNB Chain" />
+              <span class="meta">Cierra 9 sep · Era es la puerta</span>
+              <span class="num"></span>
+            </div>
+          </section>`
+      },
+      {
+        id: "13",
+        notes: "Gente se mueve. Anotá nombres. Marketplace = premio gordo. Agentes = inventario. Producto = fichas y copy. Después, 90 s del camino BIA/MVB. El Linktree de BNB va al cierre.",
+        html: `
+          <section class="slide">
+            <p class="kicker">De pie · elegí camino</p>
+            <div class="stack">
+              <div class="cols c3">
+                <p class="item">Marketplace<small>el premio gordo</small></p>
+                <p class="item">Agentes<small>inventario</small></p>
+                <p class="item">Producto<small>fichas y copy</small></p>
+              </div>
+            </div>
+            <div class="foot">
+              <img class="logo-h" src="assets/BNB_Chain_Logo_Yellow.svg" alt="BNB Chain" />
+              <span class="num"></span>
+            </div>
+          </section>`
+      },
+      {
+        id: "14",
+        notes: "90 s. NO son una convocatoria abierta esta noche. BIA: último episodio publicado Denver 25 feb 2025. MVB 11 cerró 6 sep 2025. EASY Residency S4 (YZi, donde pasó MVB) cerró 28 jun 2026. Lo que SÍ tiene fecha: Era, 9 sep. Frase: ‘Existen. Hoy no hay cohorte publicada. Si querés ver de qué se trata, el QR. Si querés algo abierto, Era.’ No cites montos ni ‘apply anytime’.",
+        html: `
+          <section class="slide">
+            <p class="kicker">Si esto pega</p>
+            <div class="split">
+              <div class="stack" style="justify-content:center">
+                <div class="steps">
+                  <div class="step">
+                    <p class="n">01</p>
+                    <p class="item">Studio<small>esta noche · la cocina</small></p>
+                  </div>
+                  <div class="step">
+                    <p class="n">02</p>
+                    <p class="item">Era<small>abierto · cierra 9 sep</small></p>
+                  </div>
+                  <div class="step">
+                    <p class="n">03</p>
+                    <div>
+                      <p class="item">BIA · MVB<small>existen · no hay cohorte 2026 publicada</small></p>
+                      <div class="row" style="gap:1.2vw;margin-top:1.2vh;align-items:center">
+                        <img class="mark" src="assets/yzilabs.svg" alt="YZi Labs" style="margin:0;height:28px" />
+                        <img class="mark" src="assets/cmc.svg" alt="CoinMarketCap" style="margin:0;height:28px" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div>
+                <div class="qr"><img src="assets/qr-programs.png" alt="QR programas BNB Chain" /></div>
+                <p class="qr-caption">bnbchain.org/en/programs</p>
+              </div>
+            </div>
+            <div class="foot">
+              <img class="logo-h" src="assets/BNB_Chain_Logo_Yellow.svg" alt="BNB Chain" />
+              <span class="meta">El QR es el catálogo · no una fecha de cierre</span>
+              <span class="num"></span>
+            </div>
+          </section>`
+      },
+      {
+        id: "15",
+        notes: "Vos: 20 s. Ellos: 4 min. No pises su pitch. QR = ethereumbolivia.org (Buildathon 11 sep). No los presentes como partner de BNB.",
+        html: `
+          <section class="slide">
+            <p class="kicker">Comunidad aliada</p>
+            <div class="stack" style="flex-direction:row;align-items:center;gap:5vw">
+              <div>
+                <div class="ally-lockup">
+                  <img class="iso" src="assets/ethbolivia-isotipo-blanco.png" alt="" />
+                  <img class="word" src="assets/ethbolivia-logotipo-blanco.png" alt="Ethereum Bolivia" />
+                </div>
+                <h1 style="font-size:clamp(28px,3vw,56px)">Capítulo Cochabamba</h1>
+                <p class="lede wide">Buildathon · 11 de septiembre</p>
+              </div>
+              <div>
+                <div class="qr"><img src="assets/qr-ethbolivia.png" alt="QR Ethereum Bolivia" /></div>
+                <p class="qr-caption">ethereumbolivia.org</p>
+              </div>
+            </div>
+            <div class="foot">
+              <img class="logo-h" src="assets/BNB_Chain_Logo_Yellow.svg" alt="BNB Chain" />
+              <span class="num"></span>
+            </div>
+          </section>`
+      },
+      {
+        id: "16",
+        notes: "Igual: 20 s vos, 4 min ellos. QR = linktr.ee/cochablock. No compares cadenas. No los presentes como partner de BNB.",
+        html: `
+          <section class="slide">
+            <p class="kicker">Comunidad aliada</p>
+            <div class="stack" style="flex-direction:row;align-items:center;gap:5vw">
+              <div>
+                <img class="ally-sq" src="assets/cochablock-logo.jpeg" alt="CochaBlock" />
+                <h1 style="font-size:clamp(28px,3vw,56px)">Comunidad Web3 Cochabamba</h1>
+                <p class="lede wide">Educación, eventos, builders locales</p>
+              </div>
+              <div>
+                <div class="qr"><img src="assets/qr-cochablock.png" alt="QR CochaBlock" /></div>
+                <p class="qr-caption">linktr.ee/cochablock</p>
+              </div>
+            </div>
+            <div class="foot">
+              <img class="logo-h" src="assets/BNB_Chain_Logo_Yellow.svg" alt="BNB Chain" />
+              <span class="num"></span>
+            </div>
+          </section>`
+      },
+      {
+        id: "17",
+        notes: "Foto. Pedila vos, no está escrita. Venue sigue abierto. QR izq: Linktree BNB. QR der: grupo WhatsApp Bolivia. No hagas un segundo closing speech.",
+        html: `
+          <section class="slide title-slide">
+            <img class="logo-v" src="assets/BNB_Chain_Stacked_Logo_Yellow.svg" alt="BNB Chain" />
+            <h1 style="margin-top:2.4vh">Gracias</h1>
+            <div class="qr-row">
+              <div>
+                <div class="qr sm"><img src="assets/qr-linktree.png" alt="QR Linktree BNB Chain" /></div>
+                <p class="qr-caption">linktr.ee/bnbchain</p>
+              </div>
+              <div>
+                <div class="qr sm"><img src="assets/qr-whatsapp.png" alt="QR grupo WhatsApp" /></div>
+                <p class="qr-caption">Grupo WhatsApp</p>
+              </div>
+            </div>
+          </section>`
+      }
+    ];
+
+    const stage = document.getElementById("stage");
+    const notesEl = document.getElementById("notes");
+    slides.forEach((s) => {
+      const wrap = document.createElement("div");
+      wrap.innerHTML = s.html.trim();
+      stage.appendChild(wrap.firstElementChild);
+    });
+
+    let i = 0;
+    const nodes = [...stage.querySelectorAll(".slide")];
+
+    function show(n) {
+      i = Math.max(0, Math.min(nodes.length - 1, n));
+      nodes.forEach((el, idx) => {
+        el.classList.toggle("on", idx === i);
+        const num = el.querySelector(".num");
+        if (num) {
+          const a = String(idx + 1).padStart(2, "0");
+          const b = String(nodes.length).padStart(2, "0");
+          num.textContent = a + " / " + b;
+        }
+      });
+      notesEl.textContent = slides[i].notes;
+      location.hash = String(i + 1);
+    }
+
+    function parseHash() {
+      const n = parseInt(location.hash.replace("#", ""), 10);
+      show(Number.isFinite(n) ? n - 1 : 0);
+    }
+
+    window.addEventListener("hashchange", parseHash);
+    parseHash();
+
+    document.addEventListener("keydown", (e) => {
+      if (["INPUT", "TEXTAREA"].includes(e.target.tagName)) return;
+      if (e.key === "ArrowRight" || e.key === " " || e.key === "PageDown") {
+        e.preventDefault(); show(i + 1);
+      } else if (e.key === "ArrowLeft" || e.key === "PageUp") {
+        e.preventDefault(); show(i - 1);
+      } else if (e.key === "Home") show(0);
+      else if (e.key === "End") show(nodes.length - 1);
+      else if (e.key === "s" || e.key === "S") document.body.classList.toggle("notes-on");
+      else if (e.key === "f" || e.key === "F") {
+        if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+        else document.exitFullscreen();
+      } else if (e.key === "h" || e.key === "H" || e.key === "?") {
+        document.body.classList.toggle("help-on");
+      } else if (e.key === "Escape") document.body.classList.remove("help-on");
+    });
+  </script>
+</body>
+</html>

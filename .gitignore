@@ -1,0 +1,16 @@
+# Agents and workshop tooling — not versioned yet
+sandbox/
+workshop-ba/
+
+# Secrets and local agent runtime
+**/.env
+**/.env.*
+**/.studio/
+**/wallets/
+**/node_modules/
+
+# Editor / OS
+.cursor/
+.vscode/
+.DS_Store
+Thumbs.db
