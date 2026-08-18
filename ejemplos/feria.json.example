@@ -1,0 +1,6 @@
+{
+  "portero": { "url": "", "agent_id": "" },
+  "critico": { "url": "", "agent_id": "" },
+  "cajero": { "url": "", "agent_id": "" },
+  "escribano": { "url": "", "agent_id": "" }
+}

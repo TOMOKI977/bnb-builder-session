@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>La Feria del Trato · pizarrón</title>
+  <style>
+    :root {
+      --yellow: #F0B90B;
+      --ink: #0B0E11;
+      --street: #14181d;
+      --wall: #1c232b;
+      --muted: #8b939c;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; height: 100%; background: var(--ink); color: #fff; font: 15px/1.4 system-ui, Segoe UI, sans-serif; }
+    body { display: flex; flex-direction: column; }
+
+    .top {
+      display: flex; align-items: baseline; justify-content: space-between; gap: 16px;
+      padding: 10px 18px; border-bottom: 2px solid var(--yellow); flex-wrap: wrap;
+    }
+    .top strong { color: var(--yellow); font-size: 18px; }
+    .top span { color: var(--muted); font-size: 13px; }
+
+    .narrator {
+      min-height: 42px;
+      padding: 10px 18px;
+      background: #16110a;
+      color: var(--yellow);
+      font-size: 18px;
+      font-weight: 650;
+    }
+
+    .feria {
+      position: relative;
+      flex: 1;
+      min-height: 340px;
+      background:
+        linear-gradient(#0b0e11, #0b0e11) top / 100% 38% no-repeat,
+        repeating-linear-gradient(90deg, #1a1510 0 28px, #16120e 28px 56px);
+      overflow: hidden;
+    }
+    .sky {
+      position: absolute; inset: 0 0 62% 0;
+      background: #0b0e11;
+    }
+    .ground {
+      position: absolute; left: 0; right: 0; bottom: 0; height: 62%;
+      background: var(--street);
+      border-top: 3px dashed #3a3224;
+    }
+    .path {
+      position: absolute; left: 6%; right: 6%; bottom: 18%;
+      height: 8px;
+      background: repeating-linear-gradient(90deg, var(--yellow) 0 18px, transparent 18px 32px);
+      opacity: .35;
+    }
+
+    .gate {
+      position: absolute; left: 3%; bottom: 22%;
+      width: 70px; text-align: center; z-index: 2;
+    }
+    .gate-post { width: 10px; height: 70px; margin: 0 auto; background: #5c5040; }
+    .gate-sign {
+      background: var(--yellow); color: var(--ink);
+      font-weight: 800; font-size: 11px; padding: 4px 6px;
+    }
+
+    .stall {
+      position: absolute;
+      bottom: 22%;
+      width: 150px;
+      text-align: center;
+      z-index: 2;
+    }
+    .stall .roof {
+      height: 0; width: 0; margin: 0 auto;
+      border-left: 75px solid transparent;
+      border-right: 75px solid transparent;
+      border-bottom: 42px solid var(--yellow);
+    }
+    .stall .wall {
+      height: 88px;
+      background: var(--wall);
+      border: 2px solid #2a333d;
+      border-top: 0;
+      position: relative;
+    }
+    .stall .door {
+      position: absolute; left: 50%; bottom: 0; transform: translateX(-50%);
+      width: 36px; height: 48px; background: #0b0e11; border: 2px solid #3d4650;
+    }
+    .stall .sign {
+      position: absolute; left: 8px; right: 8px; top: 8px;
+      font-size: 12px; font-weight: 800; color: var(--yellow);
+      letter-spacing: .04em;
+    }
+    .stall .lamp {
+      position: absolute; right: 8px; top: 10px;
+      width: 9px; height: 9px; border-radius: 50%; background: #e85d5d;
+    }
+    .stall.on .lamp { background: #3ecf8e; }
+    .stall.talk .wall { outline: 2px solid var(--yellow); }
+
+    .stall[data-stall="portero"] { left: 16%; }
+    .stall[data-stall="critico"] { left: 34%; }
+    .stall[data-stall="cajero"] { left: 52%; }
+    .stall[data-stall="escribano"] { left: 70%; }
+    .stall[data-stall="conserje"] {
+      left: auto; right: 3%; bottom: 22%; width: 120px;
+    }
+    .stall[data-stall="conserje"] .roof {
+      border-left-width: 60px; border-right-width: 60px; border-bottom-color: #c9a009;
+    }
+    .stall[data-stall="conserje"] .wall { height: 100px; }
+    .stall .job { display: block; color: var(--muted); font-size: 11px; margin-top: 6px; }
+    .stall .meta {
+      display: flex; justify-content: center; gap: 6px; margin-top: 4px;
+      font-size: 10px; font-weight: 800; letter-spacing: .03em;
+    }
+    .stall .price { color: var(--yellow); }
+    .stall .dni { color: var(--muted); }
+    .stall .cash { color: #3ecf8e; min-height: 14px; font-size: 10px; }
+
+    #ticket {
+      position: absolute; left: 50%; top: 10px; transform: translateX(-50%);
+      background: var(--yellow); color: var(--ink);
+      font-size: 12px; font-weight: 800;
+      padding: 6px 12px; border-radius: 4px;
+      opacity: 0; z-index: 10; pointer-events: none;
+      white-space: nowrap;
+    }
+    #ticket.show { opacity: 1; transition: opacity .2s; }
+
+    .coin {
+      position: absolute; z-index: 9;
+      width: 22px; height: 22px; border-radius: 50%;
+      background: var(--yellow); color: var(--ink);
+      font-size: 9px; font-weight: 900;
+      display: flex; align-items: center; justify-content: center;
+      pointer-events: none;
+      transition: left .65s ease, bottom .65s ease, opacity .25s;
+    }
+
+    .bubble {
+      position: absolute;
+      left: 50%; bottom: 112%;
+      transform: translateX(-50%) scale(.9);
+      width: 148px;
+      background: #fff; color: var(--ink);
+      padding: 6px 8px;
+      font-size: 11px; line-height: 1.25;
+      text-align: left;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 8;
+      max-height: 52px;
+      overflow: hidden;
+      border-radius: 10px;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+    }
+    .bubble:after {
+      content: "";
+      position: absolute; left: 50%; bottom: -7px;
+      margin-left: -6px;
+      border: 6px solid transparent; border-top-color: #fff;
+    }
+    .bubble.show {
+      opacity: 1;
+      transform: translateX(-50%) scale(1);
+      transition: opacity .2s, transform .25s;
+    }
+    .bubble.think { font-style: italic; color: #555; max-height: 28px; }
+
+    #walker {
+      position: absolute;
+      left: 4%;
+      bottom: 20%;
+      width: 36px; height: 58px;
+      z-index: 6;
+      transition: left .9s ease-in-out, bottom .9s ease-in-out;
+    }
+    #walker .cap {
+      width: 22px; height: 8px; margin: 0 auto;
+      background: var(--yellow); border-radius: 3px 3px 0 0;
+    }
+    #walker .head {
+      width: 18px; height: 18px; margin: -1px auto 0;
+      background: #f3d7b0; border-radius: 50%;
+    }
+    #walker .body {
+      width: 20px; height: 22px; margin: 0 auto;
+      background: var(--yellow);
+    }
+    #walker .legs {
+      display: flex; justify-content: center; gap: 4px;
+    }
+    #walker .legs i {
+      display: block; width: 5px; height: 12px; background: #c9a009;
+    }
+    #walker.walk .legs i { animation: step .35s infinite alternate; }
+    #walker.walk .legs i:last-child { animation-delay: .18s; }
+    @keyframes step { to { transform: translateY(-3px); } }
+    #letter {
+      position: absolute; right: -10px; top: 20px;
+      width: 14px; height: 10px; background: #fff;
+      border: 1px solid var(--yellow);
+      opacity: 0;
+    }
+    #letter.on { opacity: 1; }
+
+    .board {
+      border-top: 1px solid #2a333d;
+      padding: 12px 18px 16px;
+      background: #0b0e11;
+    }
+    .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 8px 0; }
+    button {
+      background: var(--yellow); color: var(--ink); border: 0;
+      padding: 10px 16px; font-weight: 800; cursor: pointer; font-size: 14px;
+    }
+    button:disabled { opacity: .4; cursor: not-allowed; }
+    button.ghost { background: transparent; color: var(--yellow); border: 1px solid var(--yellow); }
+    textarea, input {
+      width: 100%; background: #111; color: #fff; border: 1px solid #333;
+      padding: 8px; font: inherit;
+    }
+    textarea { min-height: 64px; }
+    label { color: var(--muted); font-size: 12px; display: block; margin-top: 8px; }
+    .log {
+      max-height: 120px; overflow: auto; white-space: pre-wrap;
+      background: #111; border: 1px solid #333; padding: 8px; font-size: 12px;
+      color: #d0d4d8; margin-top: 8px;
+    }
+    .hint { color: var(--muted); font-size: 12px; }
+  </style>
+</head>
+<body>
+  <div class="top">
+    <div><strong>La Feria del Trato</strong> · teatro de enseñanza</div>
+    <span>Los agentes no necesitan esta web. Se hablan solos. Esto es para que la sala vea el oficio.</span>
+  </div>
+  <div class="narrator" id="narrator">Tres oficios distintos. Play 1 = mensaje. Play 2 = el bot. Play 3 = insight + factura. La feria completa es el combo.</div>
+
+  <div class="feria" id="feria">
+    <div class="sky"></div>
+    <div class="ground"></div>
+    <div class="path"></div>
+    <div id="ticket"></div>
+    <div class="gate" id="entrada">
+      <div class="gate-sign">ENTRADA</div>
+      <div class="gate-post"></div>
+    </div>
+
+    <div class="stall" data-stall="portero">
+      <div class="bubble"></div>
+      <div class="roof"></div>
+      <div class="wall"><span class="sign">PORTERO</span><i class="lamp"></i><i class="door"></i></div>
+      <span class="job">¿el mensaje es limpio?</span>
+      <div class="meta"><span class="price">0 U</span><span class="dni">DNI —</span></div>
+      <div class="cash" data-cash="0"></div>
+    </div>
+    <div class="stall" data-stall="critico">
+      <div class="bubble"></div>
+      <div class="roof"></div>
+      <div class="wall"><span class="sign">CRÍTICO</span><i class="lamp"></i><i class="door"></i></div>
+      <span class="job">¿el agente es real?</span>
+      <div class="meta"><span class="price">0 U</span><span class="dni">DNI —</span></div>
+      <div class="cash" data-cash="0"></div>
+    </div>
+    <div class="stall" data-stall="cajero">
+      <div class="bubble"></div>
+      <div class="roof"></div>
+      <div class="wall"><span class="sign">CAJERO</span><i class="lamp"></i><i class="door"></i></div>
+      <span class="job">cobra el insight</span>
+      <div class="meta"><span class="price">0 U</span><span class="dni">DNI —</span></div>
+      <div class="cash" data-cash="0"></div>
+    </div>
+    <div class="stall" data-stall="escribano">
+      <div class="bubble"></div>
+      <div class="roof"></div>
+      <div class="wall"><span class="sign">ESCRIBANO</span><i class="lamp"></i><i class="door"></i></div>
+      <span class="job">sella el rastro</span>
+      <div class="meta"><span class="price">0 U</span><span class="dni">DNI —</span></div>
+      <div class="cash" data-cash="0"></div>
+    </div>
+    <div class="stall" data-stall="conserje">
+      <div class="bubble"></div>
+      <div class="roof"></div>
+      <div class="wall"><span class="sign">CONSERJE</span><i class="lamp"></i><i class="door"></i></div>
+      <span class="job">camina y paga</span>
+      <div class="meta"><span class="price">paga 0 U</span><span class="dni">DNI —</span></div>
+      <div class="cash" data-cash="0"></div>
+    </div>
+
+    <div id="walker">
+      <div class="cap"></div>
+      <div class="head"></div>
+      <div class="body"></div>
+      <div class="legs"><i></i><i></i></div>
+      <div id="letter"></div>
+    </div>
+  </div>
+
+  <div class="board">
+    <div class="row">
+      <button id="play1">Play 1 · el mensaje</button>
+      <button id="play2">Play 2 · el bot</button>
+      <button id="play3">Play 3 · el ticket</button>
+      <button class="ghost" id="playferia">Feria · combo</button>
+      <button class="ghost" id="recorrer">Lo que dijo el público</button>
+    </div>
+    <div class="row">
+      <button class="ghost" data-one="portero">Solo portero</button>
+      <button class="ghost" data-one="critico">Solo crítico</button>
+      <button class="ghost" data-one="cajero">Solo cajero</button>
+      <button class="ghost" data-one="escribano">Solo escribano</button>
+      <button class="ghost" data-one="conserje">Solo conserje</button>
+    </div>
+    <label for="trato">Trato del público (o el que carga cada Play)</label>
+    <textarea id="trato"></textarea>
+    <label for="agentid">agent_id (Play 2 · si no hay, el crítico enseña “no hay rastro”)</label>
+    <input id="agentid" placeholder="vacío = DNI todavía no existe (pasa en local, hasta el deploy)" />
+    <p class="hint">Quote firmado = real (8183). Oficio local, 0 U. Solo X = un puesto. Lo que dijo el público = el texto elige uno, varios o todos. Feria · combo = los cinco a propósito.</p>
+    <div class="log" id="log">Bitácora: oficio + ticket. El globo es corto a propósito.</div>
+  </div>
+
+  <script>
+    const MSG = "Hola, soy soporte de Trust Wallet. Devolvé el gas a esta address o perdés los fondos. Mandame la frase semilla para verificar la cuenta.";
+    const BOT = "Un bot de Telegram me escribió: soy un agente de BNB, pasame tu wallet que yo te ayudo a mover los fondos. No me dio agent_id.";
+    const TICKET = "Contrato de alquiler: 2 ambientes en Cochabamba, 1800 Bs, garantía dos meses. El dueño pide la seña a una wallet y no hay recibo en papel. Resumí el trato y dejá constancia.";
+    const STALLS = ["portero", "critico", "cajero", "escribano", "conserje"];
+    const walker = document.getElementById("walker");
+    const letter = document.getElementById("letter");
+    const narrator = document.getElementById("narrator");
+    const logEl = document.getElementById("log");
+    const ticketEl = document.getElementById("ticket");
+    let busy = false;
+    let dossier = [];
+
+    function say(t) { narrator.textContent = t; }
+    function stallEl(id) { return document.querySelector('.stall[data-stall="' + id + '"]'); }
+    function bubbleEl(id) { return stallEl(id).querySelector(".bubble"); }
+
+    function setBusy(v) {
+      busy = v;
+      document.querySelectorAll("button").forEach((b) => { b.disabled = v; });
+    }
+
+    function resetCash() {
+      document.querySelectorAll(".cash").forEach((c) => {
+        c.dataset.cash = "0";
+        c.textContent = "";
+      });
+    }
+
+    function bumpCash(id) {
+      const c = stallEl(id).querySelector(".cash");
+      const n = Number(c.dataset.cash || 0) + 1;
+      c.dataset.cash = String(n);
+      c.textContent = id === "conserje" ? "pagó 0 U" : (n === 1 ? "cobró 0 U" : "cobró 0 U ×" + n);
+    }
+
+    function showTicket(text) {
+      ticketEl.textContent = text;
+      ticketEl.classList.add("show");
+    }
+    function hideTicket() { ticketEl.classList.remove("show"); }
+
+    function clearBubbles() {
+      document.querySelectorAll(".stall").forEach((s) => {
+        s.classList.remove("talk");
+        const b = s.querySelector(".bubble");
+        b.classList.remove("show", "think");
+        b.textContent = "";
+      });
+      hideTicket();
+    }
+
+    function showBubble(id, text, think) {
+      document.querySelectorAll(".stall").forEach((s) => {
+        s.classList.remove("talk");
+        s.querySelector(".bubble").classList.remove("show", "think");
+      });
+      const s = stallEl(id);
+      s.classList.add("talk");
+      const b = bubbleEl(id);
+      b.textContent = think ? text : clip(text, 90);
+      b.classList.toggle("think", !!think);
+      b.classList.add("show");
+    }
+
+    function clip(t, n) {
+      t = String(t || "").replace(/\s+/g, " ").trim();
+      const first = t.split(/(?<=[.!?])\s+/)[0] || t;
+      const bit = first.length <= n ? first : t.slice(0, n);
+      return bit.length < t.length ? bit.replace(/[.,;:\s]+$/, "") + "…" : bit;
+    }
+
+    function note(title, body) {
+      logEl.textContent = title + "\n" + body + "\n\n" + logEl.textContent;
+    }
+
+    function wait(ms) { return new Promise((r) => setTimeout(r, ms)); }
+
+    function parkAt(target) {
+      const feria = document.getElementById("feria").getBoundingClientRect();
+      const r = target.getBoundingClientRect();
+      const x = r.left - feria.left + r.width / 2 - 18;
+      walker.style.left = Math.max(8, x) + "px";
+    }
+
+    function walkTo(el) {
+      walker.classList.add("walk");
+      parkAt(el);
+      return new Promise((res) => {
+        const done = () => { walker.removeEventListener("transitionend", done); walker.classList.remove("walk"); res(); };
+        walker.addEventListener("transitionend", done);
+        setTimeout(done, 1000);
+      });
+    }
+
+    function xy(el) {
+      const feria = document.getElementById("feria").getBoundingClientRect();
+      const r = el.getBoundingClientRect();
+      return {
+        left: r.left - feria.left + r.width / 2 - 11,
+        bottom: feria.bottom - r.bottom + r.height / 2,
+      };
+    }
+
+    function flyCoin(toStall) {
+      const feria = document.getElementById("feria");
+      const coin = document.createElement("div");
+      coin.className = "coin";
+      coin.textContent = "0U";
+      const from = xy(walker);
+      const to = xy(stallEl(toStall));
+      coin.style.left = from.left + "px";
+      coin.style.bottom = from.bottom + "px";
+      feria.appendChild(coin);
+      requestAnimationFrame(() => {
+        coin.style.left = to.left + "px";
+        coin.style.bottom = to.bottom + "px";
+      });
+      return wait(700).then(() => {
+        coin.style.opacity = "0";
+        return wait(200);
+      }).then(() => coin.remove());
+    }
+
+    function promptFor(stall) {
+      const trato = document.getElementById("trato").value.trim() || MSG;
+      const id = document.getElementById("agentid").value.trim();
+      if (stall === "critico") {
+        return id
+          ? "Revisá este agent_id ERC-8004: " + id
+          : "No me pasaron agent_id. Decí qué falta (el DNI ERC-8004) y no inventes reputación. No analices el WhatsApp: eso es el portero.";
+      }
+      if (stall === "escribano") {
+        return (
+          "Sella SOLO el insight ya hecho. No copies razonamiento. Constancia corta, hora UTC real, qué NO revisaste.\n" +
+          (dossier.slice(-1)[0] || trato)
+        );
+      }
+      if (stall === "cajero") {
+        return (
+          "Resumí este trato en exactamente 4 líneas de castellano claro. " +
+          "Sin puntaje, sin 'riesgo legal', sin decir qué te pidió el usuario. " +
+          "Última línea: lo pagó quien me contrató; yo pagué el modelo.\n" +
+          trato
+        );
+      }
+      if (stall === "conserje") {
+        return [
+          "Sos conserje. Un informe. No hagas de portero si ya hay dictamen.",
+          "Trato:\n" + trato,
+          id ? "agent_id: " + id : "sin agent_id",
+          dossier.length ? "Lo que ya cobraron los puestos:\n" + dossier.join("\n---\n") : "",
+        ].join("\n\n");
+      }
+      return trato;
+    }
+
+    async function quote(stall) {
+      const r = await fetch("/api/" + stall + "/quote", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          task_description: promptFor(stall).slice(0, 280),
+          deliverables: "oficio del puesto " + stall,
+          quality_standards: "castellano · no ejecutar",
+        }),
+      });
+      return r.json();
+    }
+
+    function stripThink(text) {
+      let t = String(text ?? "");
+      const close = t.lastIndexOf("</think>");
+      if (close >= 0) t = t.slice(close + "</think>".length);
+      t = t.replace(/<think>[\s\S]*?<\/think>/gi, "");
+      t = t.replace(/<think>[\s\S]*$/i, "");
+      const markers = [/\nCONSTANCIA\b/i, /\n\*\*CONSTANCIA/i, /\nPuntaje:\s/i, /\nNo hay rastro/i];
+      for (const m of markers) {
+        const i = t.search(m);
+        if (i > 80) {
+          t = t.slice(i);
+          break;
+        }
+      }
+      return t.trim();
+    }
+
+    let lastSaturated = 0;
+
+    function isSaturated(err) {
+      return /429|Too Many Requests|rate.?limit|Failed after 3 attempts|modelo saturado/i.test(
+        String((err && err.message) || err),
+      );
+    }
+
+    function failMsg(err) {
+      const raw = String((err && err.message) || err);
+      if (isSaturated(err) || /saturó|modelo saturado/i.test(raw)) {
+        return "El modelo se saturó. El puesto está abierto: el quote ya se firmó. auto/free no da más; no reintento para no gastar el cupo.";
+      }
+      if (/ECONNREFUSED|fetch failed|puesto cerrado/i.test(raw)) {
+        return "Puesto cerrado. " + raw;
+      }
+      return "No hubo oficio. " + raw;
+    }
+
+    async function ask(stall) {
+      const once = async () => {
+        const r = await fetch("/api/" + stall + "/work", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ prompt: promptFor(stall) }),
+        });
+        const j = await r.json().catch(() => ({}));
+        if (!r.ok) {
+          throw new Error(j.error || j.detail || j.message || r.status);
+        }
+        return stripThink(j.text || JSON.stringify(j));
+      };
+      const cool = lastSaturated ? 60000 - (Date.now() - lastSaturated) : 0;
+      if (cool > 0) {
+        showBubble(stall, "el modelo aún se enfría; espero…", true);
+        await wait(cool);
+      }
+      try {
+        return await once();
+      } catch (e) {
+        if (isSaturated(e)) lastSaturated = Date.now();
+        throw e;
+      }
+    }
+
+    async function visit(stall, caption) {
+      say(caption);
+      await walkTo(stallEl(stall));
+      showTicket("negociando 8183…");
+      try {
+        const q = await quote(stall);
+        const line = q.accepted
+          ? "QUOTE 0 U · firmado · chain " + (q.chain_id || 97) + " · " + (q.sig || "")
+          : (q.error || "sin quote");
+        showTicket(line);
+        note("TICKET " + stall, (q.teatro || "") + " · " + line);
+      } catch (e) {
+        showTicket("teatro: no hubo quote");
+      }
+      await flyCoin(stall);
+      bumpCash(stall);
+      await wait(250);
+      showBubble(stall, "está trabajando…", true);
+      try {
+        const text = await ask(stall);
+        showBubble(stall, text);
+        note(stall.toUpperCase(), text);
+        dossier.push(stall + ": " + clip(text, 400));
+        return text;
+      } catch (e) {
+        const msg = failMsg(e);
+        showBubble(stall, msg);
+        note(stall.toUpperCase(), msg);
+        return msg;
+      }
+    }
+
+    async function runStops(stops, captions) {
+      if (busy) return;
+      setBusy(true);
+      dossier = [];
+      resetCash();
+      clearBubbles();
+      letter.classList.remove("on");
+      say(captions.start);
+      await walkTo(document.getElementById("entrada"));
+      letter.classList.add("on");
+      await wait(350);
+      for (let i = 0; i < stops.length; i++) {
+        await visit(stops[i], captions[stops[i]] || stops[i]);
+        if (i < stops.length - 1) await wait(800);
+      }
+      letter.classList.remove("on");
+      hideTicket();
+      say(captions.end);
+      setBusy(false);
+    }
+
+    document.getElementById("play1").onclick = () => {
+      document.getElementById("trato").value = MSG;
+      document.getElementById("agentid").value = "";
+      runStops(["portero"], {
+        start: "Entra un WhatsApp. Solo el portero. No recorremos cinco puestos por un tomate.",
+        portero: "Portero cobra 0 U, firma el quote, mira el mensaje. Los otros ni se enteran.",
+        end: "Un oficio. El cobro se vio. El DNI sigue vacío hasta el deploy. Eso no es un scanner de cinco cabezas.",
+      });
+    };
+    document.getElementById("play2").onclick = () => {
+      document.getElementById("trato").value = BOT;
+      document.getElementById("agentid").value = "";
+      runStops(["critico"], {
+        start: "Un bot ofreció ayuda. Eso no es un WhatsApp de estafa: es un DNI.",
+        critico: "Crítico: ¿existe el agent_id on-chain? Hoy local = no hay rastro. Eso también es respuesta, y es por qué existe Era.",
+        end: "Sin DNI no hay puesto en el plano. El marketplace agrupa oficios, no chats.",
+      });
+    };
+    document.getElementById("play3").onclick = () => {
+      document.getElementById("trato").value = TICKET;
+      document.getElementById("agentid").value = "";
+      runStops(["cajero", "escribano"], {
+        start: "Alquiler, no semilla. Insight + factura. Cero análisis de estafa.",
+        cajero: "Cajero: paga el modelo, cobra el resumen. Quien pregunta no trae API key.",
+        escribano: "Escribano: no opina. Sella. El producto es el rastro, no otro párrafo.",
+        end: "Eso es Studio: alguien cobró, alguien selló. La moneda que voló es teatro; el quote fue real.",
+      });
+    };
+    document.getElementById("playferia").onclick = () => {
+      document.getElementById("trato").value = MSG;
+      document.getElementById("agentid").value = "";
+      runStops(["portero", "critico", "cajero", "escribano", "conserje"], {
+        start: "Combo: el conserje paga a varios. En producción es 8183. Acá ves las monedas.",
+        portero: "Paga al portero el chequeo del texto.",
+        critico: "Paga al crítico el DNI. Sin agent_id, el dictamen es ‘no hay rastro’.",
+        cajero: "Paga al cajero un resumen. No es el mismo oficio que el portero.",
+        escribano: "Paga al escribano el sello.",
+        conserje: "El conserje junta UN informe. El humano pagó una vez.",
+        end: "Por eso Era: el plano de la feria. Un agente es un puesto, no un supermercado.",
+      });
+    };
+    function routePublic(trato, agentId) {
+      const t = String(trato || "").toLowerCase();
+      if (/\btodos\b|toda la feria|recorr|\bcombo\b|conserje/.test(t)) {
+        return ["portero", "critico", "cajero", "escribano", "conserje"];
+      }
+      const hits = [];
+      if (/whatsapp|semilla|seed|mnemonic|frase secreta|devolvé el gas|devuelve el gas|soporte|estafa|scam|desconect/.test(t)) {
+        hits.push("portero");
+      }
+      if (
+        agentId ||
+        /agent_id|dni|8004|\bera\b|soy un agente|no me dio agent/.test(t) ||
+        /0x[a-f0-9]{16,}/i.test(trato)
+      ) {
+        hits.push("critico");
+      }
+      if (/resum|traduc|alquiler|contrato|terreno|vender|comprar|clasific|cu[aá]nto|4 l[ií]neas|insight/.test(t)) {
+        hits.push("cajero");
+      }
+      if (/sella|constancia|rastro|factura|sello/.test(t)) {
+        hits.push("escribano");
+      }
+      if (!hits.length) {
+        if (trato.length < 320 && /hola|pasame|wallet|fondos|telegram/.test(t)) return ["portero"];
+        return ["cajero"];
+      }
+      if (hits.length >= 3) hits.push("conserje");
+      return hits;
+    }
+
+    document.getElementById("recorrer").onclick = () => {
+      const trato = document.getElementById("trato").value.trim();
+      if (!trato) {
+        say("Escribí lo que dijo el público abajo, o usá un Play.");
+        return;
+      }
+      const stops = routePublic(trato, document.getElementById("agentid").value.trim());
+      runStops(stops, {
+        start: "Sala → " + stops.join(" · ") + ". El resto no cobra.",
+        portero: "Portero: ¿el mensaje es limpio?",
+        critico: "Crítico: ¿hay DNI?",
+        cajero: "Cajero: insight, no puntaje de estafa.",
+        escribano: "Escribano: sello.",
+        conserje: "Conserje: un informe.",
+        end: stops.length === 1
+          ? "Un oficio. Los otros ni se enteran."
+          : "Solo los puestos que pedía el trato.",
+      });
+    };
+    document.querySelectorAll("button[data-one]").forEach((b) => {
+      b.onclick = () => {
+        const stall = b.getAttribute("data-one");
+        if (!document.getElementById("trato").value.trim()) {
+          document.getElementById("trato").value = stall === "cajero" || stall === "escribano" ? TICKET : stall === "critico" ? BOT : MSG;
+        }
+        runStops([stall], {
+          start: "Corrida independiente · un puesto, una caja.",
+          [stall]: "Cobra 0 U, firma quote, hace su oficio. El resto no se mete.",
+          end: "En la nube eso es un job 8183. Acá el settle es teatro.",
+        });
+      };
+    });
+
+    async function ping() {
+      for (const s of STALLS) {
+        try {
+          const r = await fetch("/api/" + s + "/ping");
+          stallEl(s).classList.toggle("on", r.ok);
+        } catch {
+          stallEl(s).classList.remove("on");
+        }
+      }
+    }
+    ping();
+    setInterval(ping, 8000);
+  </script>
+</body>
+</html>
