@@ -4,6 +4,24 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>BNB Builder Session · Bolivia</title>
+  <script>
+    (function () {
+      var path = location.pathname;
+      if (location.protocol === "file:") return;
+      if (path.endsWith("/")) return;
+      var last = path.split("/").pop();
+      if (last && last.indexOf(".") === -1) {
+        location.replace(path + "/" + location.search + location.hash);
+      }
+    })();
+  </script>
+  <link rel="preload" as="image" href="assets/qr-tomoki.png" />
+  <link rel="preload" as="image" href="assets/qr-hackathon.png" />
+  <link rel="preload" as="image" href="assets/qr-programs.png" />
+  <link rel="preload" as="image" href="assets/qr-ethbolivia.png" />
+  <link rel="preload" as="image" href="assets/qr-cochablock.png" />
+  <link rel="preload" as="image" href="assets/qr-linktree.png" />
+  <link rel="preload" as="image" href="assets/qr-whatsapp.png" />
   <style>
     @font-face {
       font-family: Inter;
@@ -221,7 +239,6 @@
       height: min(32vh, 28vw);
       background: var(--white);
       padding: 12px;
-      image-rendering: pixelated;
     }
     .qr.sm {
       width: min(26vh, 22vw);
